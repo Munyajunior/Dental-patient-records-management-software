@@ -172,19 +172,22 @@ _installing and setting up your app._
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-<img src="images/screenshot.png>
+<div align="center">
+<img src="images/screenshot.png" width="800" height="600">
 
-<img src="images/screenshot1.png>
+<img src="images/screenshot1.png" width="800" height="600">
 
-<img src="images/screenshot2.png>
+<img src="images/screenshot2.png" width="800" height="600">
 
-<img src="images/screenshot3.png>
+<img src="images/screenshot3.png" width="800" height="600">
 
-<img src="images/screenshot4.png>
+<img src="images/screenshot4.png" width="800" height="600">
 
-<img src="images/screenshot5.png>
+<img src="images/screenshot5.png" width="800" height="600">
 
-<img src="images/screenshot6.png>
+<img src="images/screenshot6.png" width="800" height="600">
+
+</div>
 
 _For more info or help, please refer to the [Email](ivojunior671@gmail.com)_
 
