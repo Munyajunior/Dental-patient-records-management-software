@@ -18,8 +18,7 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
+
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![GENERAL PUBLIC LICENSE v2][license-shield]][license-url]
@@ -29,7 +28,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/Munyajunior/Dental-Clinic-management-software">
+  <a href="https://github.com//Munyajunior/Dental-patient-records-management-software">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -38,18 +37,18 @@
   <p align="center">
     Welcome to SmileScribePro
     <br />
-    <a href="https://github.com/Munyajunior/Dental-Clinic-management-software"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com//Munyajunior/Dental-patient-records-management-software"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/Munyajunior/Dental-Clinic-management-software">View Demo</a>
+    <a href="https://github.com//Munyajunior/Dental-patient-records-management-software">View Demo</a>
     ·
-    <a href="https://github.com/Munyajunior/Dental-Clinic-management-software/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com//Munyajunior/Dental-patient-records-management-software/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·
-    <a href="https://github.com/Munyajunior/Dental-Clinic-management-software/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com//Munyajunior/Dental-patient-records-management-software/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
 </div>
 
-
+https://github.com/Munyajunior/Dental-patient-records-management-software
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -84,14 +83,14 @@
 
 [![SmileScribePro][product-screenshot]]
 
-SmileScribPro is a comprehensive dental clinic management software designed to streamline the operations of a dental clinic. Built with Python and leveraging libraries such as Tkinter and CustomTkinter, this software is a robust solution for managing patient data, appointments, billing, and more.
+SmileScribePro is a comprehensive dental clinic management software designed to streamline the operations of a dental clinic. Built with Python and leveraging libraries such as Tkinter and CustomTkinter, this software is a robust solution for managing patient data, appointments, billing, and more.
 
 ### Key Features
-* [Patient Data Management]: SmileScribPro can record and store patient data securely, ensuring easy access to patient history and details when needed.
+* [Patient Data Management]: SmileScribePro can record and store patient data securely, ensuring easy access to patient history and details when needed.
 * [Document Generation]: The software can generate patient records in Word (docx) format, providing a convenient way to share and store patient information.
-* [Appointment Management]: SmileScribPro sends appointment dates and reminders to both patients and doctors, ensuring smooth scheduling and minimizing missed appointments.
+* [Appointment Management]: SmileScribePro sends appointment dates and reminders to both patients and doctors, ensuring smooth scheduling and minimizing missed appointments.
 * [Billing and Insurance]: The software generates bills and patient proforma for insured patients, simplifying the billing process and making insurance claims easier.
-* [Performance Tracking]: SmileScribPro can be used to calculate quotes, allowing for the tracking of the amount generated or worked by each doctor per month.
+* [Performance Tracking]: SmileScribePro can be used to calculate quotes, allowing for the tracking of the amount generated or worked by each doctor per month.
 * [Archive Feature]: The software also includes an archive to save old patient records from before the software was implemented, ensuring no data is lost in the transition
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -102,11 +101,12 @@ SmileScribPro is a comprehensive dental clinic management software designed to s
 
 This section lists the major frameworks and libraries used to build SmileScribPro. Here are the main ones:
 
-* [Python]: (https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjQnITyhM6FAxU6EVkFHSSOD-cQFnoECAYQAQ&url=https%3A%2F%2Fwww.python.org%2F&usg=AOvVaw0QREvGsjwHKp2GtoYvs1JH&opi=89978449)
-* [Tkinter]: (https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwiH39qthc6FAxU6FVkFHY5lAAUQFnoECAYQAQ&url=https%3A%2F%2Fdocs.python.org%2F3%2Flibrary%2Ftkinter.html&usg=AOvVaw2w5EX5ZeZBD19NwlNE6Yai&opi=89978449)
+* [Python](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjQnITyhM6FAxU6EVkFHSSOD-cQFnoECAYQAQ&url=https%3A%2F%2Fwww.python.org%2F&usg=AOvVaw0QREvGsjwHKp2GtoYvs1JH&opi=89978449)
+* [Tkinter](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwiH39qthc6FAxU6FVkFHY5lAAUQFnoECAYQAQ&url=https%3A%2F%2Fdocs.python.org%2F3%2Flibrary%2Ftkinter.html&usg=AOvVaw2w5EX5ZeZBD19NwlNE6Yai&opi=89978449)
 * [CustomTkinter](https://customtkinter.tomschimansky.com/)
 * [Smtplib](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjW6NnWj86FAxXZRDABHTAfDggQFnoECBEQAQ&url=https%3A%2F%2Fdocs.python.org%2F3%2Flibrary%2Fsmtplib.html&usg=AOvVaw1F0CjW1x2iSGkwkbJYfoaR&opi=89978449) 
 * [And More..]
+
 These powerful tools have been instrumental in developing SmileScribPro, providing the robust functionality and user-friendly interface that sets our software apart. Additional add-ons and plugins will be acknowledged in the relevant section.
 
 
@@ -172,14 +172,19 @@ _installing and setting up your app._
 
 <!-- USAGE EXAMPLES -->
 ## Usage
+<img src="images/screenshot.png>
 
-[images/screenshot.png]
-[images/screenshot1.png]
-[images/screenshot2.png]
-[images/screenshot3.png]
-[images/screenshot4.png]
-[images/screenshot5.png]
-[images/screenshot6.png]
+<img src="images/screenshot1.png>
+
+<img src="images/screenshot2.png>
+
+<img src="images/screenshot3.png>
+
+<img src="images/screenshot4.png>
+
+<img src="images/screenshot5.png>
+
+<img src="images/screenshot6.png>
 
 _For more info or help, please refer to the [Email](ivojunior671@gmail.com)_
 
@@ -202,7 +207,7 @@ Here’s a proposed roadmap for the future development and enhancements of Smile
     - [ ] Spanish
 This roadmap serves as a guide for the future enhancements of SmileScribPro. We are excited about these upcoming features and believe they will significantly improve the functionality and user experience of the software. Stay tuned for more updates!
 
-See the [open issues](https://github.com/Munyajunior/Dental-Clinic-management-software/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/Munyajunior/Dental-patient-records-management-software/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -229,7 +234,7 @@ Don't forget to give the project a star! Thanks again!
 <!-- LICENSE -->
 ## License
 
-Distributed under the GNU v2 License. See [https://github.com/Munyajunior/Dental-Clinic-management-software?tab=GPL-2.0-1-ov-file#] for more information.
+Distributed under the GNU v2 License. See [https://github.com/Munyajunior/Dental-patient-records-management-software/blob/master/LICENSE] for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -238,10 +243,10 @@ Distributed under the GNU v2 License. See [https://github.com/Munyajunior/Dental
 <!-- CONTACT -->
 ## Contact
 
-F. Munya Ivo Junior - [@your_twitter](https://twitter.com/your_username) 
+F. Munya Ivo Junior - [http://www.gmail.com/contact]
 Ivojunior671@gmail.com / munyajunior@icloud.com
 
-Project Link: [https://github.com/Munyajunior/Dental-Clinic-management-software]
+Project Link: [https://github.com/Munyajunior/Dental-patient-records-management-software]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -251,7 +256,7 @@ Project Link: [https://github.com/Munyajunior/Dental-Clinic-management-software]
 ## Acknowledgments
 
 
-* [GENERAL PUBLIC LICENSE v2](https://github.com/Munyajunior/Dental-Clinic-management-software?tab=GPL-2.0-1-ov-file#)
+* [GENERAL PUBLIC LICENSE v2](https://github.com/Munyajunior/Dental-patient-records-management-software/blob/master/LICENSE)
 * [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
 * [Python](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjQnITyhM6FAxU6EVkFHSSOD-cQFnoECAYQAQ&url=https%3A%2F%2Fwww.python.org%2F&usg=AOvVaw0QREvGsjwHKp2GtoYvs1JH&opi=89978449)
 * [CustomTkinter](https://customtkinter.tomschimansky.com/)
@@ -264,21 +269,14 @@ Project Link: [https://github.com/Munyajunior/Dental-Clinic-management-software]
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/Munyajunior
-[contributors-url]: https://github.com/Munyajunior/
-[forks-shield]: https://img.shields.io/github/forks
-[forks-url]: https://github.com/Munyajunior/Dental-Clinic-management-software
-[stars-shield]: https://img.shields.io/github/stars/Munyajunior/Dental-Clinic-management-software?style=for-the-badge
-[stars-url]: https://github.com/Munyajunior/Dental-Clinic-management-software/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Munyajunior/Dental-Clinic-management-software?style=for-the-badge
-[issues-url]: https://github.com/Munyajunior/Dental-Clinic-management-software/issues
-[license-shield]: https://img.shields.io/github/license/Munyajunior/Dental-Clinic-management-software?style=for-the-badge
-[license-url]: https://github.com/Munyajunior/Dental-Clinic-management-software?tab=GPL-2.0-1-ov-file#
+
+[stars-shield]: https://img.shields.io/github/stars/Munyajunior/Dental-patient-records-management-software?style=for-the-badge
+[stars-url]: https://github.com/Munyajunior/Dental-patient-records-management-software/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Munyajunior/Dental-patient-records-management-software?style=for-the-badge
+[issues-url]: https://github.com/Munyajunior/Dental-patient-records-management-software/issues
+[license-shield]: https://img.shields.io/github/license/Munyajunior/Dental-patient-records-management-software?style=for-the-badge
+[license-url]: https://github.com/Munyajunior/Dental-patient-records-management-software/blob/master/LICENSE
 [product-screenshot]: images/screenshot.png
-[product-screenshot]: images/screenshot1.png
-[product-screenshot]: images/screenshot2.png
-[product-screenshot]: images/screenshot3.png
-[product-screenshot]: images/screenshot4.png
-[product-screenshot]: images/screenshot5.png
-[product-screenshot]: images/screenshot6.png
-[readme]: https://github.com/Munyajunior/Dental-Clinic-management-software?tab=readme-ov-file
+
+[readme]: https://github.com/Munyajunior/Dental-patient-records-management-software?tab=readme-ov-file
+
