@@ -173,19 +173,19 @@ _installing and setting up your app._
 <!-- USAGE EXAMPLES -->
 ## Usage
 <div align="center">
-<img src="images/screenshot.png" width="800" height="600">
+<img src="images/screenshot.PNG" width="800" height="600">
 
-<img src="images/screenshot1.png" width="800" height="600">
+<img src="images/screenshot1.PNG" width="800" height="600">
 
-<img src="images/screenshot2.png" width="800" height="600">
+<img src="images/screenshot2.PNG" width="800" height="600">
 
-<img src="images/screenshot3.png" width="800" height="600">
+<img src="images/screenshot3.PNG" width="800" height="600">
 
-<img src="images/screenshot4.png" width="800" height="600">
+<img src="images/screenshot4.PNG" width="800" height="600">
 
-<img src="images/screenshot5.png" width="800" height="600">
+<img src="images/screenshot5.PNG" width="800" height="600">
 
-<img src="images/screenshot6.png" width="800" height="600">
+<img src="images/screenshot6.PNG" width="800" height="600">
 
 </div>
 
@@ -279,7 +279,7 @@ Project Link: [https://github.com/Munyajunior/Dental-patient-records-management-
 [issues-url]: https://github.com/Munyajunior/Dental-patient-records-management-software/issues
 [license-shield]: https://img.shields.io/github/license/Munyajunior/Dental-patient-records-management-software?style=for-the-badge
 [license-url]: https://github.com/Munyajunior/Dental-patient-records-management-software/blob/master/LICENSE
-[product-screenshot]: images/screenshot.png
+[product-screenshot]: images/screenshot.PNG
 
 [readme]: https://github.com/Munyajunior/Dental-patient-records-management-software?tab=readme-ov-file
 
