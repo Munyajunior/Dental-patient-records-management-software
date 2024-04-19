@@ -1,0 +1,15 @@
+{
+    "cSpell.words": [
+        "customtkinter",
+        "LANCZOS",
+        "PRMS",
+        "relwidth",
+        "sieze",
+        "systray"
+    ],
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#083516",
+        "titleBar.activeBackground": "#0B4B1F",
+        "titleBar.activeForeground": "#F0FDF4"
+    }
+}
