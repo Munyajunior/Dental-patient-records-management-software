@@ -1,16 +1,16 @@
 #ignore email API
 email_pass.py
-dist
-build
-__pycache__
-.vscode
+**/dist
+**/build
+**/.vscode
 reminder.py
 template.docx
 PRMS.db
-images
-Docter_Quotes
-consultation
-bill
-archives
-proforma
-records
+**/images
+**/Docter_Quotes
+**/consultation
+**/bill
+**/archives/*
+**/proforma/*
+**/records
+**/__pycache__/*
