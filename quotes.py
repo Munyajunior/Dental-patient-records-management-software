@@ -115,7 +115,7 @@ class quoteClass(ctk.CTk):
         scollx=Scrollbar(DoctorRecordFrame,orient=HORIZONTAL)
         
         def treeview_sort_column(tv, col, reverse):            
-            if col == 'date':
+            if col == 'DATE':
                 l = [(datetime.strptime(tv.set(k, col), "%d.%m.%Y"), k) for k in tv.get_children('')]
             else:
                 l = [(tv.set(k, col), k) for k in tv.get_children('')]
@@ -130,9 +130,10 @@ class quoteClass(ctk.CTk):
         scolly.config(command=self.Doc_Record_Table.yview)
         scollx.config(command=self.Doc_Record_Table.xview)
 
-        columns = ("doc_id", "doc_name","pat_name","intervention", "amount_paid", "date")
-        for col in columns:
-            self.Doc_Record_Table.heading(col, text=col, command=lambda _col=col: treeview_sort_column(self.Doc_Record_Table, _col, False))
+        columns = {"doc_id":"DOC_ID", "doc_name":"DOC_NAME","pat_name":"PATIENT_NAME","intervention":"INTERVENTION", "amount_paid":"AMOUNT_PAID", "date":"DATE"}
+        
+        for k,v in columns.items():
+            self.Doc_Record_Table.heading(k, text=v, command=lambda _col=k: treeview_sort_column(self.Doc_Record_Table, _col, False))
 
         self.Doc_Record_Table["show"] ="headings" 
         self.Doc_Record_Table.column("doc_id",width=60)

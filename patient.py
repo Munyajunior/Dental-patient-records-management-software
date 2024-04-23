@@ -212,13 +212,45 @@ class patientClass(ctk.CTk):
         scolly=Scrollbar(pat_frame,orient=VERTICAL)
         scollx=Scrollbar(pat_frame,orient=HORIZONTAL)
         
+        def treeview_sort_column(tv, col, reverse):
+            l = [(tv.set(k, col), k) for k in tv.get_children('')]
+            l.sort(reverse=reverse)
+            for index, (val, k) in enumerate(l):
+                tv.move(k, '', index)
+            tv.heading(col, command=lambda _col=col: treeview_sort_column(tv, _col, not reverse))
+              
         self.PatientTable=ttk.Treeview(pat_frame,columns=("pat_id","name","doctor_name","address","phone","profession","dob","gender","mc","tooth","observations","tp","date"),yscrollcommand=scolly.set,xscrollcommand=scollx.set)
         scollx.pack(side=BOTTOM,fill=X)
         scolly.pack(side=RIGHT,fill=Y)
         scollx.config(command=self.PatientTable.xview)
         scolly.config(command=self.PatientTable.yview)
         
-        self.PatientTable.heading("pat_id",text="PAT ID")
+        columns = {"pat_id":"PAT_ID","name":"PAT_NAME","doctor_name":"DOC_NAME","address":"ADDRESS","phone":"PHONE","profession":"PROFESSION","dob":"DATE OF BIRTH","gender":"GENDER","mc":"MAIN COMPLAIN","tooth":"TOOTH","observations":"OBSERVATIONS","tp":"TREATMENT PLAN","date":"DATE"}
+        for k,v in columns.items():
+            self.PatientTable.heading(k,text=v, command=lambda _col=k: treeview_sort_column(self.PatientTable,_col,False))
+            
+        self.PatientTable["show"] ="headings" 
+        self.PatientTable.column("pat_id",width=50)
+        self.PatientTable.column("name",width=100)
+        self.PatientTable.column("doctor_name",width=100)
+        self.PatientTable.column("address",width=100)
+        self.PatientTable.column("phone",width=100)
+        self.PatientTable.column("profession",width=100)
+        self.PatientTable.column("dob",width=100)
+        self.PatientTable.column("gender",width=60)
+        self.PatientTable.column("mc",width=130)
+        self.PatientTable.column("tooth",width=100)
+        self.PatientTable.column("observations",width=150)
+        self.PatientTable.column("tp",width=150)
+        self.PatientTable.column("date",width=100)
+        self.PatientTable.pack(fill=BOTH,expand=1)
+        self.PatientTable.bind("<ButtonRelease-1>",self.get_data)
+        permission.interact_with_database((resource_path('PRMS.db'))) 
+        self.show_arch()
+        self.show()
+        
+        
+        '''self.PatientTable.heading("pat_id",text="PAT ID")
         self.PatientTable.heading("name",text="Full Name")
         self.PatientTable.heading("doctor_name",text="Doctor")
         self.PatientTable.heading("address",text="Address")
@@ -248,7 +280,7 @@ class patientClass(ctk.CTk):
         self.PatientTable.pack(fill=BOTH,expand=1)
         self.PatientTable.bind("<ButtonRelease-1>",self.get_data)
         permission.interact_with_database((resource_path('PRMS.db'))) 
-        self.show()
+        self.show()'''
         
         
         
@@ -364,6 +396,7 @@ class patientClass(ctk.CTk):
                     ))
                     con.commit()
                     messagebox.showinfo("Success","Patient Record Added Successfully",parent=self.root)
+                    self.show_arch()
                     self.show()
                     self.clear()
         except Exception as ex:
@@ -375,6 +408,19 @@ class patientClass(ctk.CTk):
         cur=con.cursor()
         try:
             cur.execute("select * from patient")
+            rows=cur.fetchall()
+            self.PatientTable.delete(*self.PatientTable.get_children())
+            for row in rows:
+                self.PatientTable.insert('',END,values=row)
+        except Exception as ex:
+            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
+            
+    def show_arch(self):
+        permission.interact_with_database((resource_path('PRMS.db'))) 
+        con=sqlite3.connect(database=os.path.join(os.getcwd(),resource_path(r'PRMS.db')))
+        cur=con.cursor()
+        try:
+            cur.execute("select * from archives")
             rows=cur.fetchall()
             self.PatientTable.delete(*self.PatientTable.get_children())
             for row in rows:
@@ -435,7 +481,9 @@ class patientClass(ctk.CTk):
             cur.execute("UPDATE patient SET name=?, doctor_name=?, address=?, phone=?, profession=?, dob=?, gender=?, mc=?, tooth=?, observations=?, tp=?, date=? WHERE pat_id=?", params)
             con.commit()
             messagebox.showinfo("Success", "Patient Record Updated Successfully", parent=self.root)
+            self.sow_arch()
             self.show()
+            
  
          
       
@@ -457,7 +505,10 @@ class patientClass(ctk.CTk):
                         cur.execute("delete from patient where name=?",(self.var_name.get(),))
                         con.commit()
                         messagebox.showinfo("Delete","Patient Record Deleted Successfully",parent=self.root)
-                        self.clear()                
+                        self.clear()  
+                        self.show_arch()
+                        self.show()
+                                      
         except Exception as ex:
             messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
      
