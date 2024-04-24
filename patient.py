@@ -15,7 +15,7 @@ import os
 import permission
 from plyer import notification
 import sys
-
+from new_entry import entryClass
 
 def resource_path(relative_path):
     try:
@@ -43,7 +43,18 @@ class PlaceholderEntry(ctk.CTkEntry):
         else:
             return super().get()
 
+class ToplevelWindow(ctk.CTkToplevel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set the protocol for what happens when the window is closed
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
+    def on_closing(self):
+        # Check if lbl_clock exists before trying to cancel the after command
+        if hasattr(self.master, 'lbl_clock') and hasattr(self.master, 'id'):
+            self.master.lbl_clock.after_cancel(self.master.id)
+        # Then destroy the window
+        self.destroy()
 
 
 class patientClass(ctk.CTk):
@@ -57,6 +68,9 @@ class patientClass(ctk.CTk):
         self.root.geometry(f'{screen_width}x{screen_height}')
         self.root.iconbitmap(resource_path('icon.ico'))
         self.root.title("SmileScribePro")
+        self.con = sqlite3.connect(database=os.path.join(os.getcwd(),resource_path(r'PRMS.db')))
+        self.cur = self.con.cursor()
+        permission.interact_with_database((resource_path('PRMS.db')))
         #=============All Variables=======
         self.var_searchtxt=ctk.StringVar()        
         
@@ -122,7 +136,7 @@ class patientClass(ctk.CTk):
         lbl_serach=ctk.CTkLabel(self.root,text="Search Patient",font=("calibri",17,"bold")).place(x=400,y=150)
         txt_search=ctk.CTkEntry(self.root,textvariable=self.var_searchtxt,font=("goudy old style",15),fg_color="lightyellow").place(x=540,y=150)
         btn_search=ctk.CTkButton(self.root,command=self.search,text="Search",font=("goudy old style",18,"bold"),fg_color="#4caf50",width=150,height=30).place(x=700,y=150)
-        
+        btn_search=ctk.CTkButton(self.root,command=self.new_entry,text="NEW_ENTRY",font=("goudy old style",18,"bold"),fg_color="#2c3e50",width=150,height=30).place(x=600,y=200)
         #===============content=====================
         self.current_date=datetime.now().strftime("%d.%m.%Y")
         lbl_date=ctk.CTkLabel(self.root,text="Date",font=("goudy old style",17)).place(x=50,y=190)
@@ -246,8 +260,7 @@ class patientClass(ctk.CTk):
         self.PatientTable.pack(fill=BOTH,expand=1)
         self.PatientTable.bind("<ButtonRelease-1>",self.get_data)
         permission.interact_with_database((resource_path('PRMS.db'))) 
-        self.show_arch()
-        self.show()
+        
         
         
         '''self.PatientTable.heading("pat_id",text="PAT ID")
@@ -288,10 +301,10 @@ class patientClass(ctk.CTk):
         #==================Footer================
         date_=time.strftime("%Y")
         lbl_footer=ctk.CTkLabel(self.root,text=f"Copyright @ {date_} RootTech", font=("times new roman",12,"bold")).pack(side=BOTTOM,fill=X)
-        
-        permission.interact_with_database((os.path.join(os.getcwd(),resource_path('PRMS.db'))) )
         self.txt_date.configure(placeholder_text=self.current_date)
         self.update_date_time()
+        self.show_data('patient', clear=True)
+        self.show_data('archives', clear=False)
         #=====================All functions=================
    
             
@@ -340,69 +353,60 @@ class patientClass(ctk.CTk):
         self.var_doctor.set(", ".join(selected_values))
     
     def fetch_tp(self):
-        permission.interact_with_database((resource_path('PRMS.db'))) 
         self.tp_list.append("Empty")
-        con = sqlite3.connect(database=os.path.join(os.getcwd(),resource_path(r'PRMS.db')))
-        cur = con.cursor()
         try:
-            cur.execute("Select tp_name from treatment")
-            cat = cur.fetchall()
+            self.cur.execute("Select tp_name from treatment")
+            cat = self.cur.fetchall()
             if cat:
                 self.tp_list = ["Select"] + [i[0] for i in cat]
-        except Exception as ex:
-            messagebox.showerror("Error", f"Error due to : {str(ex)}", parent=self.root)
+        except sqlite3.Error as ex:
+            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
         
     def fetch_doctor(self):
-        permission.interact_with_database((resource_path('PRMS.db'))) 
         self.doc_list.append("Empty")
-        con = sqlite3.connect(database=os.path.join(os.getcwd(),resource_path(r'PRMS.db')))
-        cur = con.cursor()
         try:
-            cur.execute("Select doc_name from doctor")
-            cat = cur.fetchall()
+            self.cur.execute("Select doc_name from doctor")
+            cat = self.cur.fetchall()
             if cat:
                 self.doc_list = ["Select"] + [i[0] for i in cat]
-        except Exception as ex:
-            messagebox.showerror("Error", f"Error due to : {str(ex)}", parent=self.root)
+        except sqlite3.Error as ex:
+            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
             
             
     def add(self):
-        permission.interact_with_database((resource_path('PRMS.db'))) 
-        con=sqlite3.connect(database=os.path.join(os.getcwd(),resource_path(r'PRMS.db')))
-        cur=con.cursor()
         try:
-            if self.var_name.get()=="":
+            if not self.var_name.get():
                 messagebox.showerror("Error","Patient Name is required",parent=self.root)
+                return
+            self.cur.execute("Select * from patient where name=?",(self.var_name.get(),))
+            row=self.cur.fetchone()
+            if row!=None:
+                messagebox.showerror("Error","This Patient is already registered, try a different",parent=self.root)
             else:
-                cur.execute("Select * from patient where name=?",(self.var_name.get(),))
-                row=cur.fetchone()
-                if row!=None:
-                    messagebox.showerror("Error","This Patient is already registered, try a different",parent=self.root)
-                else:
-                    cur.execute("Insert into patient (name,doctor_name,address,phone,profession,dob,gender,mc,tooth,observations,tp,date) values(?,?,?,?,?,?,?,?,?,?,?,?)",(
-                                                self.var_name.get(),
-                                                self.var_doctor.get(),                                                
-                                                self.var_address.get(),
-                                                self.var_phone.get(),
-                                                self.var_prof.get(),                                                
-                                                self.var_dob.get(),
-                                                self.cmb_gender.get(),                                                
-                                                self.var_mc.get(),
-                                                self.var_tooth.get(),
-                                                self.txt_obs.get('1.0',END),
-                                                self.var_tp.get(),  
-                                                self.txt_date.get()              
-                        
-                    ))
-                    con.commit()
-                    messagebox.showinfo("Success","Patient Record Added Successfully",parent=self.root)
-                    self.show_arch()
-                    self.show()
-                    self.clear()
-        except Exception as ex:
+                self.cur.execute("Insert into patient (name,doctor_name,address,phone,profession,dob,gender,mc,tooth,observations,tp,date) values(?,?,?,?,?,?,?,?,?,?,?,?)",(
+                                            self.var_name.get(),
+                                            self.var_doctor.get(),                                                
+                                            self.var_address.get(),
+                                            self.var_phone.get(),
+                                            self.var_prof.get(),                                                
+                                            self.var_dob.get(),
+                                            self.cmb_gender.get(),                                                
+                                            self.var_mc.get(),
+                                            self.var_tooth.get(),
+                                            self.txt_obs.get('1.0',END),
+                                            self.var_tp.get(),  
+                                            self.txt_date.get()              
+                    
+                ))
+                self.con.commit()
+                messagebox.showinfo("Success","Patient Record Added Successfully",parent=self.root)
+                self.show_data('patient', clear=True)
+                self.show_data('archives', clear=False)
+                self.clear()
+        except sqlite3.Error as ex:
             messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
             
-    def show(self):
+    '''def show(self):
         permission.interact_with_database((resource_path('PRMS.db'))) 
         con=sqlite3.connect(database=os.path.join(os.getcwd(),resource_path(r'PRMS.db')))
         cur=con.cursor()
@@ -413,20 +417,24 @@ class patientClass(ctk.CTk):
             for row in rows:
                 self.PatientTable.insert('',END,values=row)
         except Exception as ex:
-            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
+            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)'''
             
-    def show_arch(self):
-        permission.interact_with_database((resource_path('PRMS.db'))) 
-        con=sqlite3.connect(database=os.path.join(os.getcwd(),resource_path(r'PRMS.db')))
-        cur=con.cursor()
+    def show_data(self, table_name, clear=True):
         try:
-            cur.execute("select * from archives")
-            rows=cur.fetchall()
-            self.PatientTable.delete(*self.PatientTable.get_children())
+            # Execute the query
+            self.cur.execute(f"SELECT * FROM {table_name}")
+            rows = self.cur.fetchall()
+
+            # Clear the table if needed
+            if clear:
+                self.PatientTable.delete(*self.PatientTable.get_children())
+
+            # Insert the new rows
             for row in rows:
-                self.PatientTable.insert('',END,values=row)
-        except Exception as ex:
-            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
+                self.PatientTable.insert('', END, values=row)
+        except sqlite3.Error as ex:
+            messagebox.showerror("Error", f"Error due to: {str(ex)}", parent=self.root)
+
     
     def get_data(self,ev):
         f=self.PatientTable.focus()
@@ -450,16 +458,14 @@ class patientClass(ctk.CTk):
         
         
     def update(self):
-        if not self.var_name.get():
-            messagebox.showerror("Error", "Patient Name is required", parent=self.root)
-            return
-        permission.interact_with_database((resource_path('PRMS.db')))
-        with sqlite3.connect(database=resource_path('PRMS.db')) as con:
-            cur = con.cursor()
+        try:
+            if not self.var_name.get():
+                messagebox.showerror("Error", "Patient Name is required", parent=self.root)
+                return
             params = (self.var_pat_id.get(),)
-            cur.execute("SELECT * FROM patient WHERE pat_id=?", params)
+            self.cur.execute("SELECT * FROM patient WHERE pat_id=?", params)
             
-            if cur.fetchone() is None:
+            if self.cur.fetchone() is None:
                 messagebox.showerror("Error", "No patient record found with the given name", parent=self.root)
                 return
 
@@ -478,38 +484,33 @@ class patientClass(ctk.CTk):
                 self.txt_date.get(),
                 self.var_pat_id.get()
             )
-            cur.execute("UPDATE patient SET name=?, doctor_name=?, address=?, phone=?, profession=?, dob=?, gender=?, mc=?, tooth=?, observations=?, tp=?, date=? WHERE pat_id=?", params)
-            con.commit()
+            self.cur.execute("UPDATE patient SET name=?, doctor_name=?, address=?, phone=?, profession=?, dob=?, gender=?, mc=?, tooth=?, observations=?, tp=?, date=? WHERE pat_id=?", params)
+            self.con.commit()
             messagebox.showinfo("Success", "Patient Record Updated Successfully", parent=self.root)
-            self.sow_arch()
-            self.show()
-            
- 
-         
+            self.show_data('patient',clear=True)
+            self.show_data('archives',clear=False)
+        except sqlite3.Error as ex:
+            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)    
       
     def delete(self):
-        permission.interact_with_database((resource_path('PRMS.db'))) 
-        con=sqlite3.connect(database=os.path.join(os.getcwd(),resource_path(r'PRMS.db')))
-        cur=con.cursor()
         try:
-            if self.var_name.get()=="":
+            if not self.var_name.get():
                 messagebox.showerror("Error","Patient Name is required",parent=self.root)
             else:
-                cur.execute("Select * from patient where name=?",(self.var_name.get(),))
-                row=cur.fetchone()
+                self.cur.execute("Select * from patient where name=?",(self.var_name.get(),))
+                row=self.cur.fetchone()
                 if row==None:
                     messagebox.showerror("Error","Invalid Patient Name",parent=self.root)
                 else:
                     op=messagebox.askyesno("Confirm","Do you really want to delete?",parent=self.root)
                     if op==True:                        
-                        cur.execute("delete from patient where name=?",(self.var_name.get(),))
-                        con.commit()
+                        self.cur.execute("delete from patient where name=?",(self.var_name.get(),))
+                        self.con.commit()
                         messagebox.showinfo("Delete","Patient Record Deleted Successfully",parent=self.root)
                         self.clear()  
-                        self.show_arch()
-                        self.show()
-                                      
-        except Exception as ex:
+                        self.show_data('patient', clear=True)
+                        self.show_data('archives', clear=False)
+        except sqlite3.Error as ex:
             messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
      
     def clear(self):
@@ -526,26 +527,33 @@ class patientClass(ctk.CTk):
         self.var_tooth.set("Select")
         self.var_searchtxt.set("")
         self.txt_date.configure(placeholder_text=self.current_date)
-        self.show()    
         
     def search(self):
-        permission.interact_with_database((resource_path('PRMS.db'))) 
-        con=sqlite3.connect(database=os.path.join(os.getcwd(),resource_path(r'PRMS.db')))
-        cur=con.cursor()
         try:
-            if self.var_searchtxt.get()=="":
+            if not self.var_searchtxt.get():
                 messagebox.showerror("Error","Search input is required",parent=self.root)
             else:        
-                cur.execute("select pat_id,name,doctor_name,address,phone,profession,dob,gender,mc,tooth,observations,tp from patient where name LIKE '%"+self.var_searchtxt.get()+"%'")  
-                rows=cur.fetchall()
+                # Search in 'patient' table
+                self.cur.execute("select pat_id,name,doctor_name,address,phone,profession,dob,gender,mc,tooth,observations,tp from patient where name LIKE '%"+self.var_searchtxt.get()+"%'")  
+                rows=self.cur.fetchall()
                 if len(rows)!=0:
                     self.PatientTable.delete(*self.PatientTable.get_children())
                     for row in rows:
                         self.PatientTable.insert('',END,values=row)
-                else:
+                
+                # Search in 'archive' table
+                self.cur.execute("select pat_id,name,doctor_name,address,phone,profession,dob,gender,mc,tooth,observations,tp from archives where name LIKE '%"+self.var_searchtxt.get()+"%'")  
+                rows=self.cur.fetchall()
+                if len(rows)!=0:
+                    for row in rows:
+                        self.PatientTable.insert('',END,values=row)
+                
+                # If no records found in both tables
+                if not self.PatientTable.get_children():
                     messagebox.showerror("Error","No record found!!!",parent=self.root)
-        except Exception as ex:
-            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)   
+        except sqlite3.Error as ex:
+            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
+
     
     def find_or_create_table(self,doc):
                 for element in doc.element.body:
@@ -568,18 +576,31 @@ class patientClass(ctk.CTk):
                 return table
         
     def generate_rec(self):
+        date = self.txt_date.get()
+        tooth = self.var_tooth.get()
+        tp = self.var_tp.get()
+        amt_due = self.amt_due.get()
+        amt_rcd = self.amt_rcd.get()
+        amt_blc = self.amt_ble.get()
+        name = self.var_name.get()
+        addr = self.var_address.get()
+        phone = self.var_phone.get()
+        dob = self.var_dob.get()
+        doc = self.var_doctor.get()
+        mc = self.var_mc.get()
+        obs = self.txt_obs.get('1.0',END)
         self.existing_doc_path=os.path.join(os.getcwd(),resource_path(f'records\\{self.var_name.get()}.docx'))
         if os.path.exists(self.existing_doc_path):
             doc=docx.Document(self.existing_doc_path) 
             table = self.find_or_create_table(doc)
             # Add a new row with data
             new_row = table.add_row().cells
-            new_row[0].text = self.txt_date.get()
-            new_row[1].text = self.var_tooth.get()  # Tooth
-            new_row[2].text = self.var_tp.get()  # Nature of intervention
-            new_row[3].text = self.amt_due.get()  # Due
-            new_row[4].text = self.amt_rcd.get()  # Paid
-            new_row[5].text = self.amt_ble.get()  # Balance
+            new_row[0].text = date
+            new_row[1].text = tooth  # Tooth
+            new_row[2].text = tp  # Nature of intervention
+            new_row[3].text = amt_due  # Due
+            new_row[4].text = amt_rcd  # Paid
+            new_row[5].text = amt_blc  # Balance
             
             doc.save(os.path.join(os.getcwd(),resource_path(self.existing_doc_path)))
             
@@ -617,16 +638,16 @@ class patientClass(ctk.CTk):
         #patient Details
         details=doc.add_paragraph()
         details.add_run('Full Name: ')
-        details.add_run(f"{self.var_name.get()}")
+        details.add_run(f"{name}")
         details.add_run('\n')
         details.add_run('Address: ')
-        details.add_run(f"{self.var_address.get()}")
+        details.add_run(f"{addr}")
         details.add_run('\n')
         details.add_run('Phone: ')
-        details.add_run(f"{self.var_phone.get()}")
+        details.add_run(f"{phone}")
         details.add_run('\n')
         details.add_run('Age: ')
-        details.add_run(f"{self.var_dob.get()}")
+        details.add_run(f"{dob}")
         details.add_run('\n')
         
         #observations
@@ -634,16 +655,16 @@ class patientClass(ctk.CTk):
         doc.add_heading('OBSERVATIONS')
         ob=doc.add_paragraph()
         ob.add_run('Doctor: ').bold=True
-        ob.add_run(f'Dr.{self.var_doctor.get()}')
+        ob.add_run(f'Dr.{doc}')
         ob.add_run('\n')
         ob.add_run('Main Complain: ').bold=True
-        ob.add_run(f'{self.var_mc.get()}')
+        ob.add_run(f'{mc}')
         ob.add_run('\n')
         ob.add_run('Treatment Plan: ').bold=True
-        ob.add_run(f'{self.var_tp.get()}')
+        ob.add_run(f'{tp}')
         ob.add_run('\n')
         ob.add_run('Observations: ').bold=True
-        ob.add_run(f'{self.txt_obs.get('1.0',END)}')
+        ob.add_run(f'{obs}')
         
         #table
         
@@ -651,12 +672,12 @@ class patientClass(ctk.CTk):
 
         # Add a new row with data
         new_row = table.add_row().cells
-        new_row[0].text = self.txt_date.get()
-        new_row[1].text = self.var_tooth.get() # Tooth
-        new_row[2].text = self.var_tp.get()  # Nature of intervention
-        new_row[3].text = self.amt_due.get()  # Due
-        new_row[4].text = self.amt_rcd.get()  # Paid
-        new_row[5].text = self.amt_ble.get()  # Balance
+        new_row[0].text = date
+        new_row[1].text = tooth # Tooth
+        new_row[2].text = tp  # Nature of intervention
+        new_row[3].text = amt_due  # Due
+        new_row[4].text = amt_rcd  # Paid
+        new_row[5].text = amt_blc  # Balance
         
         doc.save(os.path.join(os.getcwd(),resource_path(self.existing_doc_path)))
         # Show success message
@@ -664,108 +685,67 @@ class patientClass(ctk.CTk):
         
             
     def other(self):
-        file_path=os.path.join(os.getcwd(),resource_path(f'records\\{self.var_name.get()}.docx'))
+        # Store the values from get() calls in variables at the start of the method
+        name = self.var_name.get()
+        address = self.var_address.get()
+        phone = self.var_phone.get()
+
+        file_path = os.path.join(os.getcwd(), resource_path(f'records\\{name}.docx'))
+
         if not os.path.exists(file_path):
-            if self.var_name.get()=='' or self.var_address.get()=='' or self.var_phone.get()=='':
+            if not name or not address or not phone:
                 messagebox.showerror("Error","All Patient Details are required, Select patient Data from database bellow",parent=self.root)
             else:        
-                self.gen_win=Toplevel(self.root)     
-                self.gen_win.title('SmileScribePro. GENERATE PATIENT RECORD')
-                self.gen_win.iconbitmap(resource_path('icon.ico')) 
-                self.gen_win.geometry('450x380+500+100')     
-                self.gen_win.focus_force()
-                
-                self.amt_due=StringVar()
-                self.amt_rcd=StringVar()
-                self.amt_ble=StringVar()
-            
-                
-                title=Label(self.gen_win,text="ADD BILL DATA",font=('goudy old style',15,'bold'),bg="#3f51b5",fg="white").pack(side=TOP,fill=X)                   
-                lbl_amt_due=Label(self.gen_win,text="AMOUNT DUE",font=("times new roman",15)).place(x=20,y=60)
-                txt_amt_due=Entry(self.gen_win,textvariable=self.amt_due,font=("times new roman",15),bg='lightyellow').place(x=20,y=100,width=250,height=30)
-                
-                lbl_amt_rcd=Label(self.gen_win,text="AMOUNT RECEIVED",font=("times new roman",15)).place(x=20,y=160)
-                txt_amt_rcd=Entry(self.gen_win,textvariable=self.amt_rcd,font=("times new roman",15),bg='lightyellow').place(x=20,y=190,width=250,height=30)
-                
-                
-                lbl_amt_ble=Label(self.gen_win,text="AMOUNT LEFT",font=("times new roman",15)).place(x=20,y=225)
-                txt_amt_ble=Entry(self.gen_win,textvariable=self.amt_ble,font=("times new roman",15),bg='lightyellow').place(x=20,y=260,width=250,height=30)
-                
-                lbl_note=Label(self.gen_win,text=f"\t\tNote:'Enter 0 in AMOUNT DUE \n\tIF PATIENT HAS PAID ALL HIS/HER BILL'",font=("goudy old style",12),anchor='w',bg="white",fg="red").pack(side=BOTTOM,fill=X)    
-                
-                self.btn_update=Button(self.gen_win,text="SAVE | UPDATE RECORD",command=self.add_bill_doctor_rec,font=("times new roman",15),bg='lightblue')
-                self.btn_update.place(x=100,y=300,width=250,height=30)
+                self.create_window()
         else:
-            op=messagebox.askyesno('confirm',f"{file_path} already exist, if you want to update both the patient file data\n and Doctor Quoting Data, click 'yes'. if you want to update just the Doctor's quoting data click 'no'",parent=self.root)
-            if op==True:
-                self.gen_win=Toplevel(self.root)     
-                self.gen_win.title('SmileScribePro. GENERATE PATIENT RECORD')
-                self.gen_win.iconbitmap(resource_path('icon.ico')) 
-                self.gen_win.geometry('450x380+500+100')     
-                self.gen_win.focus_force()
-                
-                self.amt_due=StringVar()
-                self.amt_rcd=StringVar()
-                self.amt_ble=StringVar()
-            
-                
-                title=Label(self.gen_win,text="ADD BILL DATA",font=('goudy old style',15,'bold'),bg="#3f51b5",fg="white").pack(side=TOP,fill=X)                   
-                lbl_amt_due=Label(self.gen_win,text="AMOUNT DUE",font=("times new roman",15)).place(x=20,y=60)
-                txt_amt_due=Entry(self.gen_win,textvariable=self.amt_due,font=("times new roman",15),bg='lightyellow').place(x=20,y=100,width=250,height=30)
-                
-                lbl_amt_rcd=Label(self.gen_win,text="AMOUNT RECEIVED",font=("times new roman",15)).place(x=20,y=160)
-                txt_amt_rcd=Entry(self.gen_win,textvariable=self.amt_rcd,font=("times new roman",15),bg='lightyellow').place(x=20,y=190,width=250,height=30)
-                
-                
-                lbl_amt_ble=Label(self.gen_win,text="AMOUNT LEFT",font=("times new roman",15)).place(x=20,y=225)
-                txt_amt_ble=Entry(self.gen_win,textvariable=self.amt_ble,font=("times new roman",15),bg='lightyellow').place(x=20,y=260,width=250,height=30)
-                
-                lbl_note=Label(self.gen_win,text=f"\t\tNote:'Enter 0 in AMOUNT DUE \n\tIF PATIENT HAS PAID ALL HIS/HER BILL'",font=("goudy old style",12),anchor='w',bg="white",fg="red").pack(side=BOTTOM,fill=X)    
-                
-                self.btn_update=Button(self.gen_win,text="SAVE | UPDATE RECORD",command=self.add_bill_doctor_rec,font=("times new roman",15),bg='lightblue')
-                self.btn_update.place(x=100,y=300,width=250,height=30)
-            else:
-                self.gen_win=Toplevel(self.root)     
-                self.gen_win.title('SmileScribePro. GENERATE PATIENT RECORD')
-                self.gen_win.iconbitmap(resource_path('icon.ico')) 
-                self.gen_win.geometry('450x380+500+100')     
-                self.gen_win.focus_force()
-                
-                self.amt_due=StringVar()
-                self.amt_rcd=StringVar()
-                self.amt_ble=StringVar()
-            
-                
-                title=Label(self.gen_win,text="ADD BILL DATA",font=('goudy old style',15,'bold'),bg="#3f51b5",fg="white").pack(side=TOP,fill=X)                   
-                lbl_amt_due=Label(self.gen_win,text="AMOUNT DUE",font=("times new roman",15)).place(x=20,y=60)
-                txt_amt_due=Entry(self.gen_win,textvariable=self.amt_due,font=("times new roman",15),bg='lightyellow').place(x=20,y=100,width=250,height=30)
-                
-                lbl_amt_rcd=Label(self.gen_win,text="AMOUNT RECEIVED",font=("times new roman",15)).place(x=20,y=160)
-                txt_amt_rcd=Entry(self.gen_win,textvariable=self.amt_rcd,font=("times new roman",15),bg='lightyellow').place(x=20,y=190,width=250,height=30)
-                
-                
-                lbl_amt_ble=Label(self.gen_win,text="AMOUNT LEFT",font=("times new roman",15)).place(x=20,y=225)
-                txt_amt_ble=Entry(self.gen_win,textvariable=self.amt_ble,font=("times new roman",15),bg='lightyellow').place(x=20,y=260,width=250,height=30)
-                
-                lbl_note=Label(self.gen_win,text=f"\t\tNote:'Enter 0 in AMOUNT DUE \n\tIF PATIENT HAS PAID ALL HIS/HER BILL'",font=("goudy old style",12),anchor='w',bg="white",fg="red").pack(side=BOTTOM,fill=X)    
-                
-                self.btn_update=Button(self.gen_win,text="SAVE | UPDATE RECORD",command=self.add_doc_pat_rec,font=("times new roman",15),bg='lightblue')
-                self.btn_update.place(x=100,y=300,width=250,height=30)
+            op = messagebox.askyesno('confirm',f"{file_path} already exist, if you want to update both the patient file data\n and Doctor Quoting Data, click 'yes'. if you want to update just the Doctor's quoting data click 'no'",parent=self.root)
+            if op:
+                self.create_window()
+
+    def create_window(self):
+        self.gen_win = Toplevel(self.root)     
+        self.gen_win.title('SmileScribePro. GENERATE PATIENT RECORD')
+        self.gen_win.iconbitmap(resource_path('icon.ico')) 
+        self.gen_win.geometry('450x380+500+100')     
+        self.gen_win.focus_force()
+
+        self.amt_due = StringVar()
+        self.amt_rcd = StringVar()
+        self.amt_ble = StringVar()
+
+        title = Label(self.gen_win,text="ADD BILL DATA",font=('goudy old style',15,'bold'),bg="#3f51b5",fg="white").pack(side=TOP,fill=X)                   
+        lbl_amt_due = Label(self.gen_win,text="AMOUNT DUE",font=("times new roman",15)).place(x=20,y=60)
+        txt_amt_due = Entry(self.gen_win,textvariable=self.amt_due,font=("times new roman",15),bg='lightyellow').place(x=20,y=100,width=250,height=30)
+
+        lbl_amt_rcd = Label(self.gen_win,text="AMOUNT RECEIVED",font=("times new roman",15)).place(x=20,y=160)
+        txt_amt_rcd = Entry(self.gen_win,textvariable=self.amt_rcd,font=("times new roman",15),bg='lightyellow').place(x=20,y=190,width=250,height=30)
+
+        lbl_amt_ble = Label(self.gen_win,text="AMOUNT LEFT",font=("times new roman",15)).place(x=20,y=225)
+        txt_amt_ble = Entry(self.gen_win,textvariable=self.amt_ble,font=("times new roman",15),bg='lightyellow').place(x=20,y=260,width=250,height=30)
+
+        lbl_note = Label(self.gen_win,text=f"\t\tNote:'Enter 0 in AMOUNT DUE \n\tIF PATIENT HAS PAID ALL HIS/HER BILL'",font=("goudy old style",12),anchor='w',bg="white",fg="red").pack(side=BOTTOM,fill=X)    
+
+        self.btn_update = Button(self.gen_win,text="SAVE | UPDATE RECORD",command=self.add_bill_doctor_rec,font=("times new roman",15),bg='lightblue')
+        self.btn_update.place(x=100,y=300,width=250,height=30)
+
     
     def add_doctor_patient_rec(self):
-        if not self.var_doctor.get():
+        doctor = self.var_doctor.get()
+        if not doctor:
             messagebox.showerror("Error", "Doctor Name is required", parent=self.root)
             return
+
+        name = self.var_name.get()
+        amt_rcd = self.amt_rcd.get()
+
         try:
-            with sqlite3.connect(database=os.path.join(os.getcwd(),resource_path(r'PRMS.db'))) as con:
+            with sqlite3.connect(database=os.path.join(os.getcwd(), resource_path(r'PRMS.db'))) as con:
                 cur = con.cursor()
-                # Check if a record with the same doctor and patient name already exists
-                cur.execute("SELECT doc_id, intervention, amount_paid, date FROM doctor_patient_records WHERE doc_name=? AND pat_name=?", (self.var_doctor.get(), self.var_name.get()))
-                existing_record = cur.fetchone()
 
                 # Fetch tp and date from the patient table
-                cur.execute("SELECT name, doctor_name, tp, date FROM patient WHERE name=?", (self.var_name.get(),))
+                cur.execute("SELECT name, doctor_name, tp, date FROM patient WHERE name=?", (name,))
                 patient_record = cur.fetchone()
+
                 if patient_record:
                     name, doctor_name, tp, date = patient_record
 
@@ -774,22 +754,26 @@ class patientClass(ctk.CTk):
                     doc_id_row = cur.fetchone()
                     doc_id = doc_id_row[0] if doc_id_row else None
 
+                    # Check if a record with the same doctor and patient name already exists
+                    cur.execute("SELECT doc_id, intervention, amount_paid, date FROM doctor_patient_records WHERE doc_name=? AND pat_name=?", (doctor, name))
+                    existing_record = cur.fetchone()
+
                     # If the record exists and the data is different, update the record
-                    if existing_record and (existing_record[1] != tp or existing_record[2] != self.amt_rcd.get() or existing_record[3] != date):
-                        params = (doc_id, doctor_name, name, tp, self.amt_rcd.get(), date, self.var_doctor.get(), self.var_name.get())
+                    if existing_record and (existing_record[1] != tp or existing_record[2] != amt_rcd or existing_record[3] != date):
+                        params = (doc_id, doctor, name, tp, amt_rcd, date, doctor, name)
                         cur.execute("UPDATE doctor_patient_records SET doc_id=?, doc_name=?, pat_name=?, intervention=?, amount_paid=?, date=? WHERE doc_name=? AND pat_name=?", params)
                         messagebox.showinfo("Success", "Record updated successfully", parent=self.root)
                     # If the record does not exist, insert a new record
                     elif not existing_record:
-                        params = (doc_id, doctor_name, name, tp, self.amt_rcd.get(), date)
+                        params = (doc_id, doctor, name, tp, amt_rcd, date)
                         cur.execute("INSERT INTO doctor_patient_records (doc_id, doc_name, pat_name, intervention, amount_paid, date) VALUES (?, ?, ?, ?, ?, ?)", params)
                         messagebox.showinfo("Success", "New record added successfully", parent=self.root)
                 else:
                     messagebox.showerror("Error", "No patient record found with the given name", parent=self.root)
                 con.commit()
         except Exception as ex:
-            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)   
-    
+            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
+
 
     
     
@@ -864,7 +848,7 @@ class patientClass(ctk.CTk):
             messagebox.showerror("View Error",f"The file {file_path} does not exist.\nSave Rec then attempt Viewing",parent=self.root)
             
         else:
-            notification.notify(title="Success",message="Opening file...!!! be patient...",timeout=30,parent=self.root)
+            notification.notify(title="Success",message="Opening file...!!! be patient...",timeout=30)
             # Open the file in default program
             os.startfile(file_path)
      
@@ -893,7 +877,7 @@ class patientClass(ctk.CTk):
        
         
     def read_docx(self,file_path):
-        doc=docx.Document(resource_path(file_path))
+        doc=docx.Document(os.path.join(os.getcwd(),resource_path(file_path)))
         fulltext=[]
         for section in doc.sections:
             for paragraph in section.header.paragraphs:
@@ -908,7 +892,7 @@ class patientClass(ctk.CTk):
     
    
     def print_rec(self):
-        file_path=resource_path(f'records\\{self.var_name.get()}.docx')
+        file_path=os.path.join(os.getcwd(),resource_path(f'records\\{self.var_name.get()}.docx'))
         if not os.path.exists(file_path):
             messagebox.showerror("Print Error",f"The file {file_path} does not exist.\nSave Rec then attempt printing",parent=self.root)
         else:
@@ -917,6 +901,11 @@ class patientClass(ctk.CTk):
             printer_name=win32print.GetDefaultPrinter()
             win32api.ShellExecute(0,"print",file_path,'d:"%s"'%printer_name,".",0)
     
+    def new_entry(self):
+        self.toplevel_window = ToplevelWindow(self.root)
+        self.new_toplevel_window = entryClass(self.toplevel_window)
+        self.root.after(200, self.toplevel_window.focus_set)  # Delay setting the focus
+        return
         
     
     def update_date_time(self):   
