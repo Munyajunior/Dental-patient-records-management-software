@@ -507,26 +507,20 @@ class ProformaClass(ctk.CTk):
     def generate_proforma(self):
         try:
             file_path=os.path.join(os.getcwd(), resource_path(f'proforma\\proforma_{self.var_pname.get()}.docx'))
-            if not os.path.exists(file_path):
-                doc = Document(os.path.join(os.getcwd(), resource_path('template.docx')))
-                if self.var_pname.get()=='':
-                    messagebox.showerror("Error","Please select Patient whose proforma you are creating from all patients",parent=self.root)
-                else:
-                    self.get_cartTable_data()
-                    self.add_data_to_document(doc,self.proforma_data_list,self.var_pname.get())
-                    doc.save(file_path)
-            else:
+            if os.path.exists(file_path):
                 op=messagebox.askyesno("Confirm",f"{self.var_pname.get()} proforma already exist. \nAre you certain you want to Generate a new proforma for this patient",parent=self.root)
-                if op==True:
-                    doc = Document(os.path.join(os.getcwd(), resource_path('template.docx')))
-                    if self.var_pname.get()=='':
-                        messagebox.showerror("Error","Please select Patient whose proforma you are creating from all patients",parent=self.root)
-                    else:
-                        self.get_cartTable_data()
-                        self.add_data_to_document(doc,self.proforma_data_list,self.var_pname.get())
-                        doc.save(file_path)
-        except EXCEPTION as ex:
-            messagebox.showerror("Error",f'Error due to: {str(ex)}',parent=self.root)        
+                if op==False:
+                    return
+            if self.var_pname.get()=='':
+                messagebox.showerror("Error","Please select Patient whose proforma you are creating from all patients",parent=self.root)
+                return
+            doc = Document(os.path.join(os.getcwd(), resource_path('template.docx')))
+            self.get_cartTable_data()
+            self.add_data_to_document(doc,self.proforma_data_list,self.var_pname.get())
+            doc.save(file_path)
+        except Exception as ex:
+            messagebox.showerror("Error",f'Error due to: {str(ex)}',parent=self.root)
+      
             
     def view_proforma(self):
         file_path=os.path.join(os.getcwd(),resource_path(f'proforma\\proforma_{self.var_pname.get()}.docx'))
