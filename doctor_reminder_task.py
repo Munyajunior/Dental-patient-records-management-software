@@ -17,7 +17,7 @@ def resource_path(relative_path):
 
 
 
-def main():
+'''def main():
         # Your logic here
             try:
                 permission.interact_with_database((resource_path('PRMS.db')))
@@ -61,6 +61,39 @@ def main():
                             notification.notify(title='Appointment Reminder', message=f"Error due to : {str(ex)}", timeout=30)    
                             time.sleep(60)  # Check every minute
             except Exception as ex:
-                notification.notify(title='Error',message=f"Error due to : {str(ex)}",timeout=30)    
+                notification.notify(title='Error',message=f"Error due to : {str(ex)}",timeout=30)       
+main()'''
+
+
+def main():
+    try:
+        permission.interact_with_database((resource_path('PRMS.db')))
+        con=sqlite3.connect(database=resource_path(r'PRMS.db'))
+        cur = con.cursor()
+        cur.execute("SELECT * FROM schedules")
+        schedules = cur.fetchall()
+        for schedule in schedules:
+            name, date = schedule
+            appointment_date = datetime.strptime(date, "%d-%m-%Y")
+            current_date = datetime.now()
+            if current_date.date() == appointment_date.date():
+                notification.notify(title='Appointment Reminder', message=f'You Have an Appointment Scheduled Today with Mr.Mrs {name}', timeout=30)
+            else:
+                while current_date < appointment_date:
+                    time_diff = appointment_date - current_date
+                    days_diff = time_diff.days
+                    messages = {1: 'tomorrow', 2: 'in 2 days', 3: 'in 3 days', 7: 'in a week'}
+                    message = messages.get(days_diff, f'in {days_diff} days')
+                    if days_diff > 0:
+                        time.sleep(time_diff.total_seconds())
+                        notification.notify(title='Appointment Reminder', message=f'You have an appointment with {name} {message}.', timeout=30)
+                    else:
+                        notification.notify(title='Appointment Reminder', message=f'Appointment Date with {name} has already passed', timeout=30)
+                    current_date = datetime.now()  # Update the current date
+        con.close()
+    except sqlite3.Error as ex:
+        notification.notify(title='Error',message=f"Database Error due to : {str(ex)}",timeout=30)
+    except Exception as ex:
+        notification.notify(title='Error',message=f"Error due to : {str(ex)}",timeout=30)    
     
 main()
