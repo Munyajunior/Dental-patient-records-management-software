@@ -109,8 +109,8 @@ class ProformaClass(ctk.CTk):
         self.Intervention_Table=ttk.Treeview(InterventionFrame3,columns=("tp_id","tp_name","tp_code","tp_price"),yscrollcommand=scolly.set,xscrollcommand=scollx.set)
         scollx.pack(side=BOTTOM,fill=X)
         scolly.pack(side=RIGHT,fill=Y)
-        scollx.config(command=self.Intervention_Table.xview)
-        scolly.config(command=self.Intervention_Table.yview)
+        scollx.configure(command=self.Intervention_Table.xview)
+        scolly.configure(command=self.Intervention_Table.yview)
         
         self.Intervention_Table.heading("tp_id",text="ITV ID")
         self.Intervention_Table.heading("tp_name",text="Intervention") 
@@ -276,7 +276,11 @@ class ProformaClass(ctk.CTk):
         
         self.update_date_time()
         self.show()
-        self.show_patient()
+        self.show_data('patient', clear=True)  # Clear the treeview and show data from 'patient'
+        self.show_data('archives', clear=False)  # Don't clear the treeview, just add data from 'archives'
+
+        
+        
         
         
     #==========================ALL FUNCTIONS====================
@@ -320,7 +324,23 @@ class ProformaClass(ctk.CTk):
         except Exception as ex:
             messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
 
-    def show_patient(self):
+    def show_data(self, table_name, clear=True):
+        permission.interact_with_database((resource_path('PRMS.db')))
+        con=sqlite3.connect(database=resource_path(r'PRMS.db'))
+        cur=con.cursor()
+        try:
+            cur.execute(f"Select pat_id,name,tooth,tp,date from {table_name}")
+            rows=cur.fetchall()
+            if clear:
+                self.patient_table.delete(*self.patient_table.get_children())
+            for row in rows:
+                self.patient_table.insert('',END,values=row)
+        except Exception as ex:
+            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
+
+    
+    
+    '''def show_patient(self):
         permission.interact_with_database((resource_path('PRMS.db')))
         con=sqlite3.connect(database=resource_path(r'PRMS.db'))
         cur=con.cursor()
@@ -332,8 +352,20 @@ class ProformaClass(ctk.CTk):
                 self.patient_table.insert('',END,values=row)
         except Exception as ex:
             messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)      
-            
-              
+    
+    def show_archive(self):
+        permission.interact_with_database((resource_path('PRMS.db')))
+        con=sqlite3.connect(database=resource_path(r'PRMS.db'))
+        cur=con.cursor()
+        try:
+            cur.execute("Select pat_id,name,tooth,tp,date from archives")
+            rows=cur.fetchall()
+            self.patient_table.delete(*self.patient_table.get_children())
+            for row in rows:
+                self.patient_table.insert('',END,values=row)
+        except Exception as ex:
+            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)            
+    '''          
     def search(self):
         permission.interact_with_database((resource_path('PRMS.db'))) 
         con=sqlite3.connect(database=resource_path(r'PRMS.db'))
@@ -473,18 +505,9 @@ class ProformaClass(ctk.CTk):
         
         
     def generate_proforma(self):
-        file_path=os.path.join(os.getcwd(), resource_path(f'proforma\\proforma_{self.var_pname.get()}.docx'))
-        if not os.path.exists(file_path):
-            doc = Document(os.path.join(os.getcwd(), resource_path('template.docx')))
-            if self.var_pname.get()=='':
-                messagebox.showerror("Error","Please select Patient whose proforma you are creating from all patients",parent=self.root)
-            else:
-                self.get_cartTable_data()
-                self.add_data_to_document(doc,self.proforma_data_list,self.var_pname.get())
-                doc.save(file_path)
-        else:
-            op=messagebox.askyesno("Confirm",f"{self.var_pname.get()} proforma already exist. \nAre you certain you want to Generate a new proforma for this patient",parent=self.root)
-            if op==True:
+        try:
+            file_path=os.path.join(os.getcwd(), resource_path(f'proforma\\proforma_{self.var_pname.get()}.docx'))
+            if not os.path.exists(file_path):
                 doc = Document(os.path.join(os.getcwd(), resource_path('template.docx')))
                 if self.var_pname.get()=='':
                     messagebox.showerror("Error","Please select Patient whose proforma you are creating from all patients",parent=self.root)
@@ -492,7 +515,18 @@ class ProformaClass(ctk.CTk):
                     self.get_cartTable_data()
                     self.add_data_to_document(doc,self.proforma_data_list,self.var_pname.get())
                     doc.save(file_path)
-                
+            else:
+                op=messagebox.askyesno("Confirm",f"{self.var_pname.get()} proforma already exist. \nAre you certain you want to Generate a new proforma for this patient",parent=self.root)
+                if op==True:
+                    doc = Document(os.path.join(os.getcwd(), resource_path('template.docx')))
+                    if self.var_pname.get()=='':
+                        messagebox.showerror("Error","Please select Patient whose proforma you are creating from all patients",parent=self.root)
+                    else:
+                        self.get_cartTable_data()
+                        self.add_data_to_document(doc,self.proforma_data_list,self.var_pname.get())
+                        doc.save(file_path)
+        except EXCEPTION as ex:
+            messagebox.showerror("Error",f'Error due to: {str(ex)}',parent=self.root)        
             
     def view_proforma(self):
         file_path=os.path.join(os.getcwd(),resource_path(f'proforma\\proforma_{self.var_pname.get()}.docx'))
@@ -519,8 +553,8 @@ class ProformaClass(ctk.CTk):
             self.bill_amnt=self.bill_amnt+int(row[2])#price is row 2 in cart list
          
         self.net_pay=self.bill_amnt-self.discount
-        self.lbl_amnt.config(text=f"Proforma\nAmount [{str(self.bill_amnt)}]")     
-        self.lbl_netpay.config(text=f"Net Pay \n[{str(self.net_pay)}]")
+        self.lbl_amnt.configure(text=f"Proforma\nAmount [{str(self.bill_amnt)}]")     
+        self.lbl_netpay.configure(text=f"Net Pay \n[{str(self.net_pay)}]")
              
 
     def check_guess(self):
