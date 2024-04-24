@@ -65,13 +65,15 @@ class ToplevelWindow(ctk.CTkToplevel):
         self.destroy()
  
 
-class PRMS(ctk.CTk):
-    def __init__(self,root):
-      if not self.is_admin():
+class SmilescribePro(ctk.CTk):
+    def __init__(self,root,icon_path="icon.ico"):
+      if not is_admin():
           ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
           sys.exit()
       else:
-        self.root=root
+        self.root = root
+        self.systray = None
+        self.icon_path = icon_path
         self.root.state('zoomed')
         # Bind the exit method to the window's close button
         self.root.protocol("WM_DELETE_WINDOW", self.exit)
@@ -188,28 +190,20 @@ class PRMS(ctk.CTk):
         #==================Footer================
         date_=time.strftime("%Y")
         lbl_footer=ctk.CTkLabel(self.root,text=f"Copyright @ {date_} RootTech", font=("times new roman",12,"bold")).pack(side=BOTTOM,fill=X)
-        
-        menu_options = (("Show/Hide",None,lambda systray:toggle_window(systray,root)),)
-        systray=SysTrayIcon(resource_path("icon.ico"),"SmileScribePro",menu_options,on_quit_callback)
-        systray.start()
         permission.interact_with_database((resource_path('PRMS.db')))
         self.update_content() 
+        self.start()
         self.add_to_startup(resource_path('main.py'))        
       #=============================ALL FUNCTIONS==================
-    
-    def add_to_startup(self,file_path):
-      key = winreg.OpenKey(
-         winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Run', 0, 
-         winreg.KEY_ALL_ACCESS)
-      winreg.SetValueEx(key, 'SmileScribePro', 0, winreg.REG_SZ, file_path)
-      winreg.CloseKey(key)
-      
-    def is_admin(self):
-      try:
-         return ctypes.windll.shell32.IsUserAnAdmin()
-      except:
-         return False
-          
+    def start(self):
+        menu_options = (("Show/Hide", None, self.toggle_window),)
+        self.systray = SysTrayIcon(self.icon_path, "SmileScribePro", menu_options, self.on_quit_callback)
+        self.systray.start()
+        
+    def add_to_startup(self, file_path):
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Run', 0, winreg.KEY_ALL_ACCESS) as key:
+            winreg.SetValueEx(key, 'SmileScribePro', 0, winreg.REG_SZ, file_path)
+               
     def on_tab_selected(self, tab_name):
       # Destroy any existing toplevel windows
       for win in self.windows:
@@ -334,23 +328,28 @@ class PRMS(ctk.CTk):
        except Exception as ex:
             messagebox.showerror("Main Content Update Error",f"Error due to : {str(ex)}",parent=self.root)
    
-    
     def exit(self):
         self.is_running = False
         self.root.destroy()        
+    
+    def toggle_window(self, systray):
+        if self.root.state() == "normal":
+            self.root.withdraw()
+        else:
+            self.root.deiconify()   
         
+    def on_quit_callback(self, systray):
+        self.root.quit()
+   
+@staticmethod
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
         
-def toggle_window(systray,root):
-   if root.state() == "normal":
-      root.withdraw()
-   else:
-      root.deiconify()
-      
-def on_quit_callback(systray):
-   root.quit()
         
 if __name__=="__main__":
    root =ctk.CTk()
-   obj=PRMS(root)
-   
+   obj=SmilescribePro(root)
    root.mainloop()
