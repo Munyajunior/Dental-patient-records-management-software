@@ -16,6 +16,7 @@ from num2words import num2words
 import sys
 import win32print
 import win32api
+import random
 
 def resource_path(relative_path):
     try:
@@ -43,6 +44,8 @@ class ProformaClass(ctk.CTk):
         self.root.title("SmileScribePro")
         self.cart_list=[]
         self.proforma_data_list=[]
+        self.answer=random.randint(0,100)
+        self.guesses=0
         #============================Title======================
         self.icon_title=ctk.CTkImage(dark_image=Image.open(resource_path("images\\logo.png")),
                                     light_image=Image.open(resource_path("images\\logo.png")),size=(50,50))
@@ -242,8 +245,8 @@ class ProformaClass(ctk.CTk):
         self.txt_game_area=ctk.CTkTextbox(billFrame,font=("courier new",12,"bold"),text_color="#2c3e50",bg_color="#ecf0f1",width=390,height=420)
         self.txt_game_area.insert(tk.END, "Guess a number between 1 and 100\n")
         self.txt_game_area.configure(yscrollcommand=scrolly.set,xscrollcommand=scrollx.set)
-        scrollx.config(command=self.txt_game_area.xview)
-        scrolly.config(command=self.txt_game_area.yview)
+        scrollx.configure(command=self.txt_game_area.xview)
+        scrolly.configure(command=self.txt_game_area.yview)
         self.txt_game_area.pack(fill=BOTH,expand=1)
        
         
@@ -557,19 +560,18 @@ class ProformaClass(ctk.CTk):
             guess = int(last_line)
             if 1 <= guess <= 100:
                 self.guesses += 1
-                if guess < self.answer:
-                    self.txt_game_area.insert(END, "\nToo low! Try again.\n")
-                elif guess > self.answer:
-                    self.txt_game_area.insert(END, "\nToo high! Try again.\n")
-                else:
+                if guess == self.answer:
                     self.txt_game_area.delete('1.0',END)
                     self.txt_game_area.insert(END, f"\nCongratulations! You found the number in {self.guesses} guesses.\n")
                     self.txt_game_area.insert(END, "Play Again!!! Guess a number between 1 and 100\n")
+                else:
+                    hint = "Too low" if guess < self.answer else "Too high"
+                    self.txt_game_area.insert(END, f"\n{hint}! Try again.\n")
             else:
                 self.txt_game_area.insert(END, "\nInvalid input! Please enter a number between 1 and 100.\n")
         else:
             self.txt_game_area.insert(END, "\nInvalid input! Please enter a number between 1 and 100.\n")
-                    
+        
     def clear_cart(self):
         self.var_tp_name.set('')
         self.var_price.set('')
