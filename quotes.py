@@ -145,29 +145,6 @@ class quoteClass(ctk.CTk):
         self.Doc_Record_Table.pack(fill=BOTH,expand=1)
         self.Doc_Record_Table.bind("<ButtonRelease-1>",self.get_data)
 
-        '''self.Doc_Record_Table=ttk.Treeview(DoctorRecordFrame,columns=("doc_id", "doc_name","pat_name","intervention", "amount_paid", "date"),yscrollcommand=scolly.set,xscrollcommand=scollx.set)
-        scollx.pack(side=BOTTOM,fill=X)
-        scolly.pack(side=RIGHT,fill=Y)
-        scollx.config(command=self.Doc_Record_Table.xview)
-        scolly.config(command=self.Doc_Record_Table.yview)
-
-        self.Doc_Record_Table.heading("doc_id",text="Doctor ID")
-        self.Doc_Record_Table.heading("doc_name",text="Doctor Name") 
-        self.Doc_Record_Table.heading("pat_name",text="Patient Name")
-        self.Doc_Record_Table.heading("intervention",text="Intervention")  
-        self.Doc_Record_Table.heading("amount_paid",text="Total Bill") 
-        self.Doc_Record_Table.heading("date",text="Date") 
-        self.Doc_Record_Table["show"] ="headings" 
-        self.Doc_Record_Table.column("doc_id",width=60)
-        self.Doc_Record_Table.column("doc_name",width=100)
-        self.Doc_Record_Table.column("pat_name",width=100)
-        self.Doc_Record_Table.column("intervention",width=100)  
-        self.Doc_Record_Table.column("amount_paid",width=100)
-        self.Doc_Record_Table.column("date",width=100)          
-        self.Doc_Record_Table.pack(fill=BOTH,expand=1)
-        self.Doc_Record_Table.bind("<ButtonRelease-1>",self.get_data)'''
-        
-        
         #=======================Add Quote Widgets Frame===================
         #=====Variable=====
         self.var_doc_id=StringVar()
