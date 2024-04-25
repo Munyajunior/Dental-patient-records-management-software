@@ -12,6 +12,7 @@ from appointment import appointmentClass
 from proforma import ProformaClass
 from quotes import quoteClass
 from archives import archiveClass
+from cashbook import cashBookClass
 import permission
 import sqlite3
 import os
@@ -90,7 +91,7 @@ class SmilescribePro(ctk.CTk):
         self.tab_view = MyTabView(self.root,)
         self.tabs = ["Main", "Consultation", "Patient Records", 
                     "Interventions", "Appointments", "Billing", 
-                    "Proforma", "All Bills","Quotes","Archives"]
+                    "Proforma", "All Bills","Quotes","Archives","Cash Book"]
         x_offset = 0
         self.tab_view.pack(anchor='w',fill='x')
         for tab in self.tabs:
@@ -234,6 +235,8 @@ class SmilescribePro(ctk.CTk):
           self.quotes()
       elif tab_name=='Archives':
           self.archives()
+      elif tab_name=='Cash Book':
+          self.cashbook()
       
         
       
@@ -249,48 +252,63 @@ class SmilescribePro(ctk.CTk):
         self.new_toplevel_window = patientClass(self.toplevel_window)
         self.windows.append(self.toplevel_window)
         self.root.after(200, self.toplevel_window.focus_set)  # Delay setting the focus
+        self.toplevel_window.iconbitmap('icon.ico')
         return
     def intervention(self):
         self.toplevel_window = ToplevelWindow(self.root)
         self.new_toplevel_window = interventionClass(self.toplevel_window)
         self.windows.append(self.toplevel_window)
         self.root.after(200, self.toplevel_window.focus_set)  # Delay setting the focus
+        self.toplevel_window.iconbitmap('icon.ico')
         return
     def appointment(self):
         self.toplevel_window = ToplevelWindow(self.root)
         self.new_toplevel_window = appointmentClass(self.toplevel_window)
         self.windows.append(self.toplevel_window)
         self.root.after(200, self.toplevel_window.focus_set)  # Delay setting the focus
+        self.toplevel_window.iconbitmap('icon.ico')
         return
     def bill(self):
         self.toplevel_window = ToplevelWindow(self.root)
         self.new_toplevel_window = BillClass(self.toplevel_window)
         self.windows.append(self.toplevel_window)
         self.root.after(200, self.toplevel_window.focus_set)  # Delay setting the focus
+        self.toplevel_window.iconbitmap('icon.ico')
         return
     def all_bill(self):
         self.toplevel_window = ToplevelWindow(self.root)
         self.new_toplevel_window = V_billClass(self.toplevel_window)
         self.windows.append(self.toplevel_window)
         self.root.after(200, self.toplevel_window.focus_set)  # Delay setting the focus
+        self.toplevel_window.iconbitmap('icon.ico')
         return
     def proforma(self):
         self.toplevel_window = ToplevelWindow(self.root)
         self.new_toplevel_window = ProformaClass(self.toplevel_window)
         self.windows.append(self.toplevel_window)
         self.root.after(200, self.toplevel_window.focus_set)  # Delay setting the focus
+        self.toplevel_window.iconbitmap('icon.ico')
         return
     def quotes(self):
         self.toplevel_window = ToplevelWindow(self.root)
         self.new_toplevel_window = quoteClass(self.toplevel_window)
         self.windows.append(self.toplevel_window)
         self.root.after(200, self.toplevel_window.focus_set)  # Delay setting the focus
+        self.toplevel_window.iconbitmap('icon.ico')
         return
     def archives(self):
         self.toplevel_window = ToplevelWindow(self.root)
         self.new_toplevel_window = archiveClass(self.toplevel_window)
         self.windows.append(self.toplevel_window)
         self.root.after(200, self.toplevel_window.focus_set)  # Delay setting the focus
+        self.toplevel_window.iconbitmap('icon.ico')
+        return
+    def cashbook(self):
+        self.toplevel_window = ToplevelWindow(self.root)
+        self.new_toplevel_window = cashBookClass(self.toplevel_window)
+        self.windows.append(self.toplevel_window)
+        self.root.after(200, self.toplevel_window.focus_set)  # Delay setting the focus
+        self.toplevel_window.iconbitmap('icon.ico')
         return
         
     
