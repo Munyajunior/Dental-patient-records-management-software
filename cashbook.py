@@ -208,20 +208,23 @@ class cashBookClass(ctk.CTk):
         try:
             month = self.month_.get()
             year = self.year_.get()
-            # Convert month and year to a string in the format 'YYYY-MM'
-            self.date_str = f"{month}.{year}"
+            if month=='' or year=='':
+                messagebox.showerror('Invalid',"Please add a valid month ('00') and year ('0000')")
+                return
+            else:
+                # Convert month and year to a string in the format 'YYYY-MM'
+                self.date_str = f"{month}.{year}"
 
-            # Execute SQL query to select records from the specified month and year
-            self.cur.execute(f"SELECT pat_name, intervention, amount_paid, date FROM doctor_patient_records WHERE strftime('%m.%Y', substr(date,7,4) || '-' || substr(date,4,2) || '-' || substr(date,1,2)) = '{self.date_str}'")
-            rows = self.cur.fetchall()
+                # Execute SQL query to select records from the specified month and year
+                self.cur.execute(f"SELECT pat_name, intervention, amount_paid, date FROM doctor_patient_records WHERE strftime('%m.%Y', substr(date,7,4) || '-' || substr(date,4,2) || '-' || substr(date,1,2)) = '{self.date_str}'")
+                rows = self.cur.fetchall()
 
-            # Delete existing records in the Treeview
-            self.Cash_BookTable.delete(*self.Cash_BookTable.get_children())
+                # Delete existing records in the Treeview
+                self.Cash_BookTable.delete(*self.Cash_BookTable.get_children())
 
-            # Insert the fetched records into the Treeview
-            for row in rows:
-                self.Cash_BookTable.insert('', END, values=row)
-
+                # Insert the fetched records into the Treeview
+                for row in rows:
+                    self.Cash_BookTable.insert('', END, values=row)
         except Exception as ex:
             messagebox.showerror("Error", f"Error due to : {str(ex)}", parent=self.root)
    
@@ -230,15 +233,19 @@ class cashBookClass(ctk.CTk):
         try:
             month = self.month_.get()
             year = self.year_.get()
-            # Convert month and year to a string in the format 'MM.YYYY'
-            self.date_str = f"{month}.{year}"
-            self.exist=os.path.join(os.getcwd(),resource_path(f'Cash_Book\\cash_book_{self.date_str}.docx'))
-            if not os.path.exists(self.exist):
-                self.cashbook(self.date_str)
+            if month=='' or year=='':
+                messagebox.showerror('Invalid',"Please add a valid month ('00') and year ('0000')")
+                return
             else:
-                op=messagebox.askyesno("Error", f"Cash book for {self.date_str} already exist!!!\nDo you want to Regenerate it?", parent=self.root)
-                if op == True:
+                # Convert month and year to a string in the format 'MM.YYYY'
+                self.date_str = f"{month}.{year}"
+                self.exist=os.path.join(os.getcwd(),resource_path(f'Cash_Book\\cash_book_{self.date_str}.docx'))
+                if not os.path.exists(self.exist):
                     self.cashbook(self.date_str)
+                else:
+                    op=messagebox.askyesno("Error", f"Cash book for {self.date_str} already exist!!!\nDo you want to Regenerate it?", parent=self.root)
+                    if op == True:
+                        self.cashbook(self.date_str)
         except Exception as ex:
             messagebox.showerror("Error", f"Error due to : {str(ex)}", parent=self.root)
             
@@ -331,14 +338,17 @@ class cashBookClass(ctk.CTk):
             messagebox.showinfo("Success", f"Cash Book for {date_str} has been Generated", parent=self.root)
 
     def print_cashbook(self):
-            file_path=os.path.join(os.getcwd(),resource_path(f'Cash_Book\\cash_book_{self.date_str}.docx'))
-            if not os.path.exists(file_path):
-                messagebox.showerror("Print error",f"The file {file_path} does not exist.Generate CashBook First",parent=self.root)
-            else:
-                notification.notify(title="Printing",Message=f"Printing CashBook for {file_path}!!! be patient",timeout=40)
-                doc=docx.Document(file_path)
-                printer_name=win32print.GetDefaultPrinter()
-                win32api.ShellExecute(0,"print",file_path,'d:"%s"'%printer_name,".",0)
+        month = self.month_.get()
+        year = self.year_.get()
+        self.date_str = f"{month}.{year}"
+        file_path=os.path.join(os.getcwd(),resource_path(f'Cash_Book\\cash_book_{self.date_str}.docx'))
+        if not os.path.exists(file_path):
+            messagebox.showerror("Print error",f"The file {file_path} does not exist.Generate CashBook First",parent=self.root)
+        else:
+            notification.notify(title="Printing",Message=f"Printing CashBook for {file_path}!!! be patient",timeout=40)
+            doc=docx.Document(file_path)
+            printer_name=win32print.GetDefaultPrinter()
+            win32api.ShellExecute(0,"print",file_path,'d:"%s"'%printer_name,".",0)
     
     def update_date_time(self):
         time_ = time.strftime("%H:%M:%S")
