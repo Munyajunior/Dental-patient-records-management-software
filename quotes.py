@@ -251,8 +251,6 @@ class quoteClass(ctk.CTk):
             self.Doc_Record_Table.delete(*self.Doc_Record_Table.get_children())
             for row in rows:
                 self.Doc_Record_Table.insert('',END,values=row)
-                
-            self.con.close()
         except Exception as ex:
             messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
     
