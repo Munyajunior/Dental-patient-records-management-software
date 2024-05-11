@@ -419,10 +419,10 @@ class quoteClass(ctk.CTk):
                 messagebox.showerror("Print error",f"The file {file_path} does not exist.Generate Doctor Quote First",parent=self.root)
             else:
                 try:
-                    notification.notify(title="printer",message="Printing Process on-going!!!, please wait...",timeout=30)
                     doc=docx.Document(file_path)
                     printer_name=win32print.GetDefaultPrinter()
                     win32api.ShellExecute(0,"print",file_path,'d:"%s"'%printer_name,".",0)
+                    notification.notify(title="printing",message="Printing Process on-going!!!, please wait...",timeout=30)
                 except Exception as e:
                     messagebox.showerror("Printing Error",f"Error Due to: {str(e)}",parent=self.root)
         except Exception as e:
