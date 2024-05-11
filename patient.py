@@ -694,12 +694,12 @@ class patientClass(ctk.CTk):
 
         if not os.path.exists(file_path):
             if not name or not address or not phone:
-                messagebox.showerror("Error","All Patient Details are required, Select patient Data from database bellow",parent=self.root)
+                messagebox.showerror("Error","All Patient Details are required, Select patient Data from database below",parent=self.root)
             else:        
                 self.create_window()
         else:
             op = messagebox.askyesno('confirm',f"{file_path} already exist, if you want to update both the patient file data\n and Doctor Quoting Data, click 'yes'. if you want to update just the Doctor's quoting data click 'no'",parent=self.root)
-            if op:
+            if op==True:
                 self.create_window()
 
     def create_window(self):

@@ -201,8 +201,8 @@ class entryClass(ctk.CTk):
         
         #=============Buttons============
         btn_add=ctk.CTkButton(self.root,text="NEW_ENTRY",command=self.append_entry,font=("arial",15),fg_color="#2196f3",width=130,height=28).place(x=800,y=420)
-        
-        #=====================Employee Details============
+        btn_save=ctk.CTkButton(self.root,text="SAVE_NEW_REC",command=self.other,font=("arial",15),fg_color="#6ab04c",width=110,height=28).place(x=980,y=420)
+        #=====================Patient Details============
         pat_frame=ctk.CTkFrame(self.root)
         pat_frame.place(x=10,y=470)
         
@@ -242,7 +242,6 @@ class entryClass(ctk.CTk):
         self.PatientTable.column("date",width=100)
         self.PatientTable.pack(fill=BOTH,expand=1)
         self.PatientTable.bind("<ButtonRelease-1>",self.get_data)
-        permission.interact_with_database((resource_path('PRMS.db'))) 
         
              
         
@@ -351,11 +350,7 @@ class entryClass(ctk.CTk):
         self.var_dob.set(row[6])
         self.cmb_gender.set(row[7])                                                
        
-        
-        
-
-
-            
+         
     def append_entry(self):
         try:
             if not self.var_name.get():
@@ -367,16 +362,16 @@ class entryClass(ctk.CTk):
                 messagebox.showerror("Error","This Patient is not registered, please add as new",parent=self.root)
             else:
                 # Get the existing observations
-                existing_obs = row[10]  # Assuming 'observations' is the 10th column
+                existing_obs = row[10]  #  'observations' is the 10th column
                 # Append the new observations
                 new_obs = existing_obs + '\n' + self.txt_obs.get('1.0',END)
                 self.cur.execute("Update patient set doctor_name=?, mc=?, tooth=?, observations=?, tp=?, date=? where name=?", (
-                                            self.var_doctor.get() + ', ' + row[2],  # Assuming 'doctor_name' is the 2nd column
-                                            self.var_mc.get() + ', ' + row[8],  # Assuming 'mc' is the 8th column
-                                            self.var_tooth.get() + ', ' + row[9],  # Assuming 'tooth' is the 9th column
+                                            self.var_doctor.get() + ', ' + row[2],  #  'doctor_name' is the 2nd column
+                                            self.var_mc.get() + ', ' + row[8],  #  'mc' is the 8th column
+                                            self.var_tooth.get() + ', ' + row[9],  #  'tooth' is the 9th column
                                             new_obs,
-                                            self.var_tp.get() + ', ' + row[11],  # Assuming 'tp' is the 11th column
-                                            self.txt_date.get() + ', ' + row[12],  # Assuming 'date' is the 12th column
+                                            self.var_tp.get() + ', ' + row[11],  #  'tp' is the 11th column
+                                            self.txt_date.get() + ', ' + row[12],  #  'date' is the 12th column
                                             self.var_name.get()              
                 ))
                 self.con.commit()
@@ -412,7 +407,89 @@ class entryClass(ctk.CTk):
                     messagebox.showerror("Error","No record found!!!",parent=self.root)
         except sqlite3.Error as ex:
             messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
-       
+    
+    def other(self):
+        # Store the values from get() calls in variables at the start of the method
+        name = self.var_name.get()
+        address = self.var_address.get()
+        phone = self.var_phone.get()
+      
+        if not name or not address or not phone:
+            messagebox.showerror("Error","All Patient Details are required, Select patient Data from database below",parent=self.root)
+        else:        
+            self.create_window()
+        
+                
+    def create_window(self):          
+        self.gen_win = Toplevel(self.root)     
+        self.gen_win.title('SmileScribePro. GENERATE PATIENT RECORD')
+        self.gen_win.iconbitmap(resource_path('icon.ico')) 
+        self.gen_win.geometry('450x380+500+100')     
+        self.gen_win.focus_force()
+
+        self.amt_due = StringVar()
+        self.amt_rcd = StringVar()
+        self.amt_ble = StringVar()
+
+        title = Label(self.gen_win,text="ADD BILL DATA",font=('goudy old style',15,'bold'),bg="#3f51b5",fg="white").pack(side=TOP,fill=X)                   
+        lbl_amt_due = Label(self.gen_win,text="AMOUNT DUE",font=("times new roman",15)).place(x=20,y=60)
+        txt_amt_due = Entry(self.gen_win,textvariable=self.amt_due,font=("times new roman",15),bg='lightyellow').place(x=20,y=100,width=250,height=30)
+
+        lbl_amt_rcd = Label(self.gen_win,text="AMOUNT RECEIVED",font=("times new roman",15)).place(x=20,y=160)
+        txt_amt_rcd = Entry(self.gen_win,textvariable=self.amt_rcd,font=("times new roman",15),bg='lightyellow').place(x=20,y=190,width=250,height=30)
+
+        lbl_amt_ble = Label(self.gen_win,text="AMOUNT LEFT",font=("times new roman",15)).place(x=20,y=225)
+        txt_amt_ble = Entry(self.gen_win,textvariable=self.amt_ble,font=("times new roman",15),bg='lightyellow').place(x=20,y=260,width=250,height=30)
+
+        lbl_note = Label(self.gen_win,text=f"\t\tNote:'Enter 0 in AMOUNT DUE \n\tIF PATIENT HAS PAID ALL HIS/HER BILL'",font=("goudy old style",12),anchor='w',bg="white",fg="red").pack(side=BOTTOM,fill=X)    
+
+        self.btn_update = Button(self.gen_win,text="SAVE | UPDATE RECORD",command=self.add_doctor_patient_rec,font=("times new roman",15),bg='lightblue')
+        self.btn_update.place(x=100,y=300,width=250,height=30)
+        
+    def add_doctor_patient_rec(self):
+        doctor = self.var_doctor.get()
+        if not doctor:
+            messagebox.showerror("Error", "Doctor Name is required", parent=self.root)
+            return
+
+        name = self.var_name.get()
+        amt_rcd = self.amt_rcd.get()
+        try:
+            with sqlite3.connect(database=os.path.join(os.getcwd(), resource_path(r'PRMS.db'))) as con:
+                cur = con.cursor()
+
+                # Fetch tp and date from the patient table
+                cur.execute("SELECT name, doctor_name, tp, date FROM patient WHERE name=?", (name,))
+                patient_record = cur.fetchone()
+
+                if patient_record:
+                    name, doctor_name, tp, date = patient_record
+
+                    # Fetch doc_id from the doctor table
+                    cur.execute("SELECT doc_id FROM doctor WHERE doc_name=?", (doctor_name,))
+                    doc_id_row = cur.fetchone()
+                    doc_id = doc_id_row[0] if doc_id_row else None
+
+                    # Check if a record with the same doctor and patient name already exists
+                    cur.execute("SELECT doc_id, intervention, amount_paid, date FROM doctor_patient_records WHERE doc_name=? AND pat_name=?", (doctor, name))
+                    existing_record = cur.fetchone()
+
+                    # If the record exists and the data is different, insert a new record
+                    if existing_record and (existing_record[1] != tp or existing_record[2] != amt_rcd or existing_record[3] != date):
+                        params = (doc_id, doctor, name, tp, amt_rcd, date)
+                        cur.execute("INSERT INTO doctor_patient_records (doc_id, doc_name, pat_name, intervention, amount_paid, date) VALUES (?, ?, ?, ?, ?, ?)", params)
+                        messagebox.showinfo("Success", "Record Updated successfully", parent=self.root)
+                    # If the record does not exist, insert a new record
+                    elif not existing_record:
+                        params = (doc_id, doctor, name, tp, amt_rcd, date)
+                        cur.execute("INSERT INTO doctor_patient_records (doc_id, doc_name, pat_name, intervention, amount_paid, date) VALUES (?, ?, ?, ?, ?, ?)", params)
+                        messagebox.showinfo("Success", "New record added successfully", parent=self.root)
+                else:
+                    messagebox.showerror("Error", "No patient record found with the given name", parent=self.root)
+                con.commit()
+        except Exception as ex:
+            messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
+
     
     def update_date_time(self):   
         time_=time.strftime("%H:%M:%S")
