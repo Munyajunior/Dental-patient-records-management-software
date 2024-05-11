@@ -399,10 +399,10 @@ class quoteClass(ctk.CTk):
                 messagebox.showerror("Error",f"Error Due to: {str(e)}",parent=self.root)
                 
     def view_quote(self):
+        current_month_name = str(time.strftime('%B'))
         if self.var_doc_name.get()=='':
             messagebox.showerror("Error","Please Generate Quote first",parent=self.root)
-            current_month_name = str(time.strftime('%B'))
-        else:
+        else: 
             file_path=os.path.join(os.getcwd(), resource_path(f'Doctor_Quotes\\{self.var_doc_name.get()}_{current_month_name}_quote.docx'))
             if not os.path.exists(file_path):
                 messagebox.showerror("View Error","Generate Patient Proforma First before viewing",parent=self.root)
@@ -410,15 +410,18 @@ class quoteClass(ctk.CTk):
                 os.startfile(os.path.join(os.getcwd(),resource_path(file_path)))         
        
     def print_quote(self):
-        current_month_name = str(time.strftime('%B'))
-        file_path=os.path.join(os.getcwd(), resource_path(f'Doctor_Quotes\\{self.var_doc_name.get()}_{current_month_name}_quote.docx'))
+        _this_month = str(time.strftime('%B'))
+        file_path=os.path.join(os.getcwd(), resource_path(f'Doctor_Quotes\\{self.var_doc_name.get()}_{_this_month}_quote.docx'))
         if not os.path.exists(file_path):
             messagebox.showerror("Print error",f"The file {file_path} does not exist.Generate Doctor Quote First",parent=self.root)
         else:
-            notification.notify(title="printer",message="Printing Process on-going!!!, please wait...",timeout=30)
-            doc=docx.Document(file_path)
-            printer_name=win32print.GetDefaultPrinter()
-            win32api.ShellExecute(0,"print",file_path,'d:"%s"'%printer_name,".",0)
+            try:
+                notification.notify(title="printer",message="Printing Process on-going!!!, please wait...",timeout=30)
+                doc=docx.Document(file_path)
+                printer_name=win32print.GetDefaultPrinter()
+                win32api.ShellExecute(0,"print",file_path,'d:"%s"'%printer_name,".",0)
+            except Exception as e:
+                messagebox.Showerror("Printing Error",f"Error Due to: {str(e)}",parent=self.root)
             
     def clear_all(self):
         del self.quote_data_list[:]
