@@ -49,6 +49,9 @@ class quoteClass(ctk.CTk):
         self.root.title("SmileScribePro")
         self.quote_list=[]
         self.quote_data_list=[]
+        permission.interact_with_database((resource_path('PRMS.db'))) 
+        self.con=sqlite3.connect(database=resource_path(r'PRMS.db'))
+        self.cur=self.con.cursor()
                
         #============================Title======================
         self.icon_title=ctk.CTkImage(dark_image=Image.open(resource_path("images\\logo.png")),
@@ -242,32 +245,29 @@ class quoteClass(ctk.CTk):
         #=====================All functions=================
     
     def show(self):
-        permission.interact_with_database((resource_path('PRMS.db')))
-        con=sqlite3.connect(database=resource_path(r'PRMS.db'))
-        cur=con.cursor()
         try:
-            cur.execute("Select doc_id, doc_name,pat_name,intervention, amount_paid, date from doctor_patient_records")
-            rows=cur.fetchall()
+            self.cur.execute("Select doc_id, doc_name,pat_name,intervention, amount_paid, date from doctor_patient_records")
+            rows=self.cur.fetchall()
             self.Doc_Record_Table.delete(*self.Doc_Record_Table.get_children())
             for row in rows:
                 self.Doc_Record_Table.insert('',END,values=row)
+                
+            self.con.close()
         except Exception as ex:
             messagebox.showerror("Error",f"Error due to : {str(ex)}",parent=self.root)
     
     def search(self):
-        permission.interact_with_database((resource_path('PRMS.db'))) 
-        con=sqlite3.connect(database=resource_path(r'PRMS.db'))
-        cur=con.cursor()
         try:
             if self.var_search.get()=="":
                 messagebox.showerror("Error","Search input is required",parent=self.root)
             else:        
-                cur.execute("select doc_id, doc_name,pat_name,intervention, amount_paid, date from doctor_patient_records where doc_name LIKE '%"+self.var_search.get()+"%'")
-                rows=cur.fetchall()
+                self.cur.execute("select doc_id, doc_name,pat_name,intervention, amount_paid, date from doctor_patient_records where doc_name LIKE '%"+self.var_search.get()+"%'")
+                rows=self.cur.fetchall()
                 if len(rows)!=0:
-                    self.Intervention_Table.delete(*self.Intervention_Table.get_children())
+                    self.Doc_Record_Table.delete(*self.Doc_Record_Table.get_children())
                     for row in rows:
-                        self.Intervention_Table.insert('',END,values=row)
+                        self.Doc_Record_Table.insert('',END,values=row)
+                        
                 else:
                     messagebox.showerror("Error","No record found!!!",parent=self.root)
         except Exception as ex:
