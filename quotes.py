@@ -382,34 +382,43 @@ class quoteClass(ctk.CTk):
         p_data.add_run(f"{str(total)} FCFA").bold=True
         p_data.add_run(f"\n")
         p_data.add_run(f"\t{word.upper()} FCFA").italic = True
-        messagebox.showinfo("Success",f"Dr.{name.upper()}'s Quota for this Month Has Been Generated and saved",parent=self.root)
+        
         
     def generate_quote(self):
         doc = Document(os.path.join(os.getcwd(), resource_path('template.docx')))
         if self.var_doc_name.get()=='':
             messagebox.showerror("Error","Please select Doctor whose Quote you are Generating ",parent=self.root)
         else:
-            self.get_quoteTable()
-            current_month_name = str(time.strftime('%B'))
-            self.add_quoting_data_to_document(doc,self.quote_data_list,self.var_doc_name.get(),self.var_date.get())
-            doc.save(os.path.join(os.getcwd(), resource_path(f'Doctor_Quotes\\{self.var_doc_name.get()}_{current_month_name}_quote.docx')))  
-            self.file_path=os.path.join(os.getcwd(), resource_path(f'Doctor_Quotes\\{self.var_doc_name.get()}_{current_month_name}_quote.docx'))
-    
+            try:
+                self.get_quoteTable()
+                current_month_name = str(time.strftime('%B'))
+                self.add_quoting_data_to_document(doc,self.quote_data_list,self.var_doc_name.get(),self.var_date.get())
+                doc.save(os.path.join(os.getcwd(), resource_path(f'Doctor_Quotes\\{self.var_doc_name.get()}_{current_month_name}_quote.docx')))  
+                messagebox.showinfo("Success",f"Dr.{name.upper()}'s Quota for this Month Has Been Generated and saved",parent=self.root)
+            except Exception as e:
+                messagebox.showerror("Error",f"Error Due to: {str(e)}",parent=self.root)
+                
     def view_quote(self):
-        current_month_name = str(time.strftime('%B'))
-        if not os.path.exists(self.file_path):
-            messagebox.showerror("View Error","Generate Patient Proforma First before viewing",parent=self.root)
+        if self.var_doc_name.get()=='':
+            messagebox.showerror("Error","Please Generate Quote first",parent=self.root)
+            current_month_name = str(time.strftime('%B'))
         else:
-            os.startfile(os.path.join(os.getcwd(),resource_path(self.file_path)))         
+            file_path=os.path.join(os.getcwd(), resource_path(f'Doctor_Quotes\\{self.var_doc_name.get()}_{current_month_name}_quote.docx'))
+            if not os.path.exists(file_path):
+                messagebox.showerror("View Error","Generate Patient Proforma First before viewing",parent=self.root)
+            else:
+                os.startfile(os.path.join(os.getcwd(),resource_path(file_path)))         
        
     def print_quote(self):
         current_month_name = str(time.strftime('%B'))
-        if not os.path.exists(self.file_path):
-            messagebox.showerror("Print error",f"The file {self.file_path} does not exist.Generate Doctor Quote First",parent=self.root)
+        file_path=os.path.join(os.getcwd(), resource_path(f'Doctor_Quotes\\{self.var_doc_name.get()}_{current_month_name}_quote.docx'))
+        if not os.path.exists(file_path):
+            messagebox.showerror("Print error",f"The file {file_path} does not exist.Generate Doctor Quote First",parent=self.root)
         else:
-            doc=docx.Document(self.file_path)
+            notification.notify(title="printer",message="Printing Process on-going!!!, please wait...",timeout=30)
+            doc=docx.Document(file_path)
             printer_name=win32print.GetDefaultPrinter()
-            win32api.ShellExecute(0,"print",self.file_path,'d:"%s"'%printer_name,".",0)
+            win32api.ShellExecute(0,"print",file_path,'d:"%s"'%printer_name,".",0)
             
     def clear_all(self):
         del self.quote_data_list[:]
@@ -418,9 +427,14 @@ class quoteClass(ctk.CTk):
         self.lbl_net_pay.configure(text=f'Net Quote(XAF)\n[0]')
         self.quoteTitle.configure(text=f"Quote \t Total Quotes: [0]")
         self.var_search.set("")
-        self.clear_quote()
         self.show()
         self.show_quote()
+        self.var_doc_id.set('')
+        self.var_doc_name.set('')
+        self.var_pat_name.set('')
+        self.var_interv.set('')
+        self.var_amt_paid.set('')
+        self.var_date.set('')
     
     def update_date_time(self):
         time_ = time.strftime("%H:%M:%S")
