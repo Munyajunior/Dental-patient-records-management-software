@@ -1,3 +1,11 @@
+> **⚠️ This repository is no longer maintained.**
+>
+> This is the original Tkinter desktop application. We are building a more improved version of Dentora (formerly KwantaDent): a React + TypeScript web app, a Tauri desktop app (Windows, macOS, Linux) and the FastAPI backend, with offline support, a rebuilt signed-update pipeline and a finer-grained permission system, all in one repository:
+>
+> **➡️ https://github.com/Munyajunior/dentora**
+>
+> All new development, issues and releases now happen there. This repository is kept for reference only and will not receive further updates.
+
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a name="readme-top"></a>
 <!--
